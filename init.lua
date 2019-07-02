@@ -1,10 +1,14 @@
 print('start')
 local cfg = {}
-cfg.ssid="****"
-cfg.pwd="***********"
+cfg.ssid=""
+cfg.pwd=""
 cfg.save=false
 
-ledPin = 4
+local commands = {}
+commands["/on"] = function () gpio.write(ledPin, 0) end
+commands["/off"] = function () gpio.write(ledPin, 1) end
+
+ledPin = 0
 gpio.mode(ledPin,gpio.OUTPUT)
 gpio.write(ledPin, 1)
 wifi.setmode(wifi.STATION)
@@ -33,12 +37,11 @@ function makeRequest()
         else
           print(code, data)
           local table = mysplit(data)
-          if (table[1] == "/ledon") then
-            gpio.write(ledPin, 0)
-          elseif (table[1] == "/ledoff") then 
-            print(table[1])
-            gpio.write(ledPin, 1)
-          end
+--          local isACommandMassage =
+          if(table[1] ~= "no" and commands[table[1]] ~= nil) 
+            then
+                commands[table[1]]() 
+            end
         end
       end)
 end
